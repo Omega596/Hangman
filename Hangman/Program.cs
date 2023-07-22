@@ -3007,7 +3007,7 @@ class Program
 "zone"};
     int failedAttempts = 0;
     const int maximumFailedAttempts = 8;
-    readonly char[] _avaliableChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
+    readonly char[] allChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
 #pragma warning disable IDE0044 // These lists are going to be written and read
     List<char> availableChars = new();
     List<char> storedUserInputs = new();
@@ -3015,13 +3015,13 @@ class Program
 
     internal void GameLoop()
     {
-        availableChars.AddRange(_avaliableChars);
+        availableChars.AddRange(allChars);
         var rand = new Random();
         int Randomindex = rand.Next(words.Length);
         string selectedWord = words[Randomindex];
         List<char> selectedWordUniqueSymbols = new(selectedWord.Distinct().ToArray());
         string pattern = @"^[a-zA-Z]+$";
-        for (int i = 0; i < _avaliableChars.Length; i++)
+        for (int i = 0; i < allChars.Length; i++)
         {
             Console.WriteLine(selectedWord);
             ConsoleKeyInfo keyInfo = Console.ReadKey();
