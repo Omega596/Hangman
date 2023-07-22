@@ -1,7 +1,4 @@
-﻿
-using System.Collections;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 class Program
 {
@@ -3007,40 +3004,39 @@ class Program
 "zone"};
     int failedAttempts = 0;
     const int maximumFailedAttempts = 8;
-    readonly char[] allChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
-#pragma warning disable IDE0044 // These lists are going to be written and read
+    readonly char[] _avaliableChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
+    #pragma warning disable IDE0044 // These lists are going to be written and read
     List<char> availableChars = new();
     List<char> storedUserInputs = new();
-#pragma warning restore IDE0044
+    #pragma warning restore IDE0044
 
     internal void GameLoop()
     {
-        availableChars.AddRange(allChars);
+        availableChars.AddRange(_avaliableChars);
         var rand = new Random();
         int Randomindex = rand.Next(words.Length);
         string selectedWord = words[Randomindex];
         List<char> selectedWordUniqueSymbols = new(selectedWord.Distinct().ToArray());
-        string pattern = @"^[a-zA-Z]+$";
-        for (int i = 0; i < allChars.Length; i++)
+        for (int i = 0; i < _avaliableChars.Length; i++)
         {
             Console.WriteLine(selectedWord);
             ConsoleKeyInfo keyInfo = Console.ReadKey();
             char KeyChar = char.ToLower((char)keyInfo.Key);
-            bool isLetter = Regex.IsMatch(KeyChar.ToString(), pattern);
-            bool isAvailable = availableChars.Contains(KeyChar);
-            bool isInWord = selectedWord.Contains(KeyChar);
-            if (isLetter)
+            bool IsLetter;
+            bool IsAvailable;
+            bool IsInWord;
+            Validation(KeyChar, selectedWord, out IsLetter, out IsAvailable, out IsInWord);
+            if (IsLetter)
             {
-                Console.WriteLine($"Debugging: Letter Validation Test, {KeyChar}, True");
-                if (isAvailable)
+                Console.WriteLine($"Debugging: IsLetter Check True, Target: {KeyChar}");
+                if (IsAvailable)
                 {
-                    Console.WriteLine($"Debugging: Availability Validation Test, {KeyChar}, True");
-                    if (isInWord)
+                    Console.WriteLine($"Debugging: IsAvaliable Check True, Target: {KeyChar}");
+                    if (IsInWord)
                     {
-                        Console.WriteLine($"Debugging: Containing Validation Test, {KeyChar}, True");
                         availableChars.Remove(KeyChar);
                         Console.WriteLine($"({string.Join(", ", availableChars)})");
-                        Console.WriteLine($"MaxFails == {maximumFailedAttempts}, Fails == {failedAttempts}");
+                        Console.WriteLine($"maximunFailedAttempts == {maximumFailedAttempts}, failedAttempts == {failedAttempts}");
                         storedUserInputs.Add(KeyChar);
                         selectedWordUniqueSymbols.Remove(KeyChar);
                         Console.WriteLine(string.Join("", selectedWordUniqueSymbols));
@@ -3052,7 +3048,6 @@ class Program
                     }
                     else
                     {
-                        Console.WriteLine($"Debugging: Containing Validation Test, {KeyChar}, False");
                         availableChars.Remove(KeyChar);
                         if (failedAttempts >= maximumFailedAttempts)
                         {
@@ -3060,19 +3055,41 @@ class Program
                             break;
                         }
                         failedAttempts++;
-                        Console.WriteLine($"MaxFails == {maximumFailedAttempts}, Fails == {failedAttempts}");
+                        Console.WriteLine($"maximunFailedAttempts == {maximumFailedAttempts}, failedAttempts == {failedAttempts}");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Debugging, Availability Validation Test, {KeyChar}, False");
+                    Console.WriteLine($"Debugging: IsAvaliable Check False, Target: {KeyChar}");
                     i--;
                 }
             }
             else
             {
-                Console.WriteLine($"Debugging: Validation Test, {KeyChar}, False");
+                Console.WriteLine($"Debugging: IsLetter Check False, Target: {KeyChar}");
                 i--;
+            }
+        }
+    }
+    internal void Validation(char KeyChar, string selectedWord, out bool Check1, out bool Check2, out bool Check3)
+    {
+        Check1 = false;
+        Check2 = false;
+        Check3 = false;
+        string pattern = @"^[a-zA-Z]+$";
+        bool isLetter = Regex.IsMatch(KeyChar.ToString(), pattern);
+        bool isAvailable = availableChars.Contains(KeyChar);
+        bool isInWord = selectedWord.Contains(KeyChar);
+        if (isLetter)
+        {
+            Check1 = true;
+            if (isAvailable)
+            {
+                Check2 = true;
+                if (isInWord)
+                {
+                    Check3 = true;
+                }
             }
         }
     }
