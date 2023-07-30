@@ -2,7 +2,8 @@
 
 class Program
 {
-    readonly string[] words = {
+    // ↓ don't unhide it, or hide it quick, it contains a lot of words - that's all you need to know.
+    public readonly string[] words = {
 "abandon",
 "ability",
 "able",
@@ -3001,8 +3002,8 @@ class Program
 "yours",
 "yourself",
 "youth",
-"zone"}; // don't unhide it, or hide it quick, it contains a lot of words - that's all you need to know.
-    string[] hangman_ASCII_Sprites = {
+"zone"};
+    private string[] hangman_ASCII_Sprites = {
     "░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n",
     "░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░┌─┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
     "░░░┌─────░░░\r\n░░░│░░░░░░░░\r\n░░░│░░░░░░░░\r\n░░░│░░░░░░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
@@ -3014,20 +3015,20 @@ class Program
     "░░░┌─────░░░\r\n░░░│░░░░▄░░░\r\n░░░│░░░▐│▌░░\r\n░░░│░░░░║░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
     "░░░┌────┐░░░\r\n░░░│░░░░▄░░░\r\n░░░│░░░▐│▌░░\r\n░░░│░░░░║░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n"};
     
-    int failedAttempts = 0;
-    const int maximumFailedAttempts = 9;
-    private readonly char[] _avaliableChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
-    private List<char> availableChars = new();
+    public int failedAttempts = 0;
+    public const int maximumFailedAttempts = 9;
+    private readonly char[] allChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
+    private List<char> _availableChars = new();
 
     internal void GameLoop()
     {
-        availableChars.AddRange(_avaliableChars);
+        _availableChars.AddRange(allChars);
         var rand = new Random();
         int Randomindex = rand.Next(words.Length);
         string selectedWord = words[Randomindex];
         List<char> selectedWordUniqueSymbols = new(selectedWord.Distinct().ToArray());
         Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
-        for (int i = 0; i < _avaliableChars.Length; i++)
+        for (int i = 0; i < allChars.Length; i++)
         {
 #if DEBUG
             Console.WriteLine(selectedWord);
@@ -3047,8 +3048,8 @@ class Program
                     Console.WriteLine($"Debugging: IsAvaliable Check True, Target: {KeyChar}");
                     if (IsInWord)
                     {
-                        availableChars.Remove(KeyChar);
-                        Console.WriteLine($"({string.Join(", ", availableChars)})");
+                        _availableChars.Remove(KeyChar);
+                        Console.WriteLine($"({string.Join(", ", _availableChars)})");
                         Console.WriteLine($"maximunFailedAttempts == {maximumFailedAttempts}, failedAttempts == {failedAttempts}");
                         selectedWordUniqueSymbols.Remove(KeyChar);
                         Console.WriteLine(string.Join("", selectedWordUniqueSymbols));
@@ -3061,7 +3062,7 @@ class Program
                     }
                     else
                     {
-                        availableChars.Remove(KeyChar);
+                        _availableChars.Remove(KeyChar);
                         if (failedAttempts >= maximumFailedAttempts)
                         {
                             Console.WriteLine("Game Over");
@@ -3090,8 +3091,8 @@ class Program
                 {
                     if (IsInWord)
                     {
-                        availableChars.Remove(KeyChar);
-                        Console.WriteLine($" ({string.Join(", ", availableChars)})\n");
+                        _availableChars.Remove(KeyChar);
+                        Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
                         selectedWordUniqueSymbols.Remove(KeyChar);
                         if (selectedWordUniqueSymbols.Count == 0)
                         {
@@ -3102,8 +3103,8 @@ class Program
                     }
                     else
                     {
-                        availableChars.Remove(KeyChar);
-                        Console.WriteLine($" ({string.Join(", ", availableChars)})\n");
+                        _availableChars.Remove(KeyChar);
+                        Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
                         if (failedAttempts == maximumFailedAttempts)
                         {
                             Console.WriteLine("Game Over");
@@ -3122,7 +3123,7 @@ class Program
             {
                 i--;
                 Console.Clear();
-                Console.WriteLine($"The Character you entered is incorrect, the avaliable characters are: \n{string.Join(", ", availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                Console.WriteLine($"The Character you entered is incorrect, the avaliable characters are: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
             }
 #endif
         }
@@ -3134,7 +3135,7 @@ class Program
         Check3 = false;
         string pattern = @"^[a-zA-Z]+$";
         bool isLetter = Regex.IsMatch(KeyChar.ToString(), pattern);
-        bool isAvailable = availableChars.Contains(KeyChar);
+        bool isAvailable = _availableChars.Contains(KeyChar);
         bool isInWord = selectedWord.Contains(KeyChar);
         if (isLetter)
         {
