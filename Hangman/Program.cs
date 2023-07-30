@@ -3001,14 +3001,23 @@ class Program
 "yours",
 "yourself",
 "youth",
-"zone"};
+"zone"}; // don't unhide it, or hide it quick, it contains a lot of words - that's all you need to know.
+    string[] hangman_ASCII_Sprites = {
+    "░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n",
+    "░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░░░░░░░░░░░\r\n░░┌─┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
+    "░░░┌─────░░░\r\n░░░│░░░░░░░░\r\n░░░│░░░░░░░░\r\n░░░│░░░░░░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
+    "░░░┌─────░░░\r\n░░░│░░░░▄░░░\r\n░░░│░░░░░░░░\r\n░░░│░░░░░░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
+    "░░░┌─────░░░\r\n░░░│░░░░▄░░░\r\n░░░│░░░░│░░░\r\n░░░│░░░░░░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
+    "░░░┌─────░░░\r\n░░░│░░░░▄░░░\r\n░░░│░░░░│░░░\r\n░░░│░░░░│░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
+    "░░░┌─────░░░\r\n░░░│░░░░▄░░░\r\n░░░│░░░░│░░░\r\n░░░│░░░░║░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
+    "░░░┌─────░░░\r\n░░░│░░░░▄░░░\r\n░░░│░░░░│▌░░\r\n░░░│░░░░║░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
+    "░░░┌─────░░░\r\n░░░│░░░░▄░░░\r\n░░░│░░░▐│▌░░\r\n░░░│░░░░║░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n",
+    "░░░┌────┐░░░\r\n░░░│░░░░▄░░░\r\n░░░│░░░▐│▌░░\r\n░░░│░░░░║░░░\r\n░░┌┴┐░░░░░░░\r\n░░│░│░░░░░░░\r\n"};
+    
     int failedAttempts = 0;
-    const int maximumFailedAttempts = 8;
-    readonly char[] _avaliableChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
-    #pragma warning disable IDE0044 // These lists are going to be written and read
-    List<char> availableChars = new();
-    List<char> storedUserInputs = new();
-    #pragma warning restore IDE0044
+    const int maximumFailedAttempts = 9;
+    private readonly char[] _avaliableChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
+    private List<char> availableChars = new();
 
     internal void GameLoop()
     {
@@ -3017,15 +3026,19 @@ class Program
         int Randomindex = rand.Next(words.Length);
         string selectedWord = words[Randomindex];
         List<char> selectedWordUniqueSymbols = new(selectedWord.Distinct().ToArray());
+        Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
         for (int i = 0; i < _avaliableChars.Length; i++)
         {
+#if DEBUG
             Console.WriteLine(selectedWord);
+#endif
             ConsoleKeyInfo keyInfo = Console.ReadKey();
-            char KeyChar = char.ToLower((char)keyInfo.Key);
+            char KeyChar = char.ToLower(keyInfo.KeyChar);
             bool IsLetter;
             bool IsAvailable;
             bool IsInWord;
             Validation(KeyChar, selectedWord, out IsLetter, out IsAvailable, out IsInWord);
+#if DEBUG
             if (IsLetter)
             {
                 Console.WriteLine($"Debugging: IsLetter Check True, Target: {KeyChar}");
@@ -3037,7 +3050,6 @@ class Program
                         availableChars.Remove(KeyChar);
                         Console.WriteLine($"({string.Join(", ", availableChars)})");
                         Console.WriteLine($"maximunFailedAttempts == {maximumFailedAttempts}, failedAttempts == {failedAttempts}");
-                        storedUserInputs.Add(KeyChar);
                         selectedWordUniqueSymbols.Remove(KeyChar);
                         Console.WriteLine(string.Join("", selectedWordUniqueSymbols));
                         if (selectedWordUniqueSymbols.Count == 0)
@@ -3045,6 +3057,7 @@ class Program
                             Console.WriteLine("You Win!");
                             break;
                         }
+                        Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
                     }
                     else
                     {
@@ -3056,6 +3069,7 @@ class Program
                         }
                         failedAttempts++;
                         Console.WriteLine($"maximunFailedAttempts == {maximumFailedAttempts}, failedAttempts == {failedAttempts}");
+                        Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
                     }
                 }
                 else
@@ -3069,6 +3083,48 @@ class Program
                 Console.WriteLine($"Debugging: IsLetter Check False, Target: {KeyChar}");
                 i--;
             }
+#else
+            if (IsLetter)
+            {
+                if (IsAvailable)
+                {
+                    if (IsInWord)
+                    {
+                        availableChars.Remove(KeyChar);
+                        Console.WriteLine($" ({string.Join(", ", availableChars)})\n");
+                        selectedWordUniqueSymbols.Remove(KeyChar);
+                        if (selectedWordUniqueSymbols.Count == 0)
+                        {
+                            Console.WriteLine("You Win!");
+                            break;
+                        }
+                        Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+                    }
+                    else
+                    {
+                        availableChars.Remove(KeyChar);
+                        Console.WriteLine($" ({string.Join(", ", availableChars)})\n");
+                        if (failedAttempts == maximumFailedAttempts)
+                        {
+                            Console.WriteLine("Game Over");
+                            break;
+                        }
+                        failedAttempts++;
+                        Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+                    }
+                }
+                else
+                {
+                    i--;
+                }
+            }
+            else
+            {
+                i--;
+                Console.Clear();
+                Console.WriteLine($"The Character you entered is incorrect, the avaliable characters are: \n{string.Join(", ", availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+            }
+#endif
         }
     }
     internal void Validation(char KeyChar, string selectedWord, out bool Check1, out bool Check2, out bool Check3)
@@ -3097,7 +3153,7 @@ class Program
     {
         Console.WriteLine("Welcome to the game 'Hangman'");
         Console.WriteLine("You write a letter, and if that letter is in the word, then you can guess more, until you reveal the word. \nIf you guess 8 letters wrong, you lose the game.");
-        Console.WriteLine("Choose a letter to guess, only english letters are allowed.");
+        Console.WriteLine("Choose a letter to guess, only english letters are allowed.\n");
         var Instance = new Program();
         Instance.GameLoop();
     }
