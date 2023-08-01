@@ -1,13 +1,8 @@
 ﻿using System.Text.RegularExpressions;
-using static HangmanResources.Resources;
-class Program
+using static Resources;
+class Gameloop
 {
-    public int failedAttempts = 0;
-    public const int maximumFailedAttempts = 9;
-    private readonly char[] allChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
-    private List<char> _availableChars = new();
-
-    internal void GameLoop()
+    internal static void GameLoop()
     {
         _availableChars.AddRange(allChars);
         var rand = new Random();
@@ -119,14 +114,14 @@ class Program
         }
     }
     /// <summary>
-    /// A Validation Check containing 3 checks, isLetter, isAvailable and isInWord.
+    /// Method <c>Validation</c> contains 3 checks, isLetter, isAvailable and isInWord.
     /// </summary>
     /// <param name="KeyChar">The character the user has entered</param>
     /// <param name="selectedWord">The chosen word for Hangman</param>
     /// <param name="Check1">The output of the first check, checks if a letter is a english letter</param>
     /// <param name="Check2">The output of the second check, checks if a letter is available</param>
     /// <param name="Check3">The output of the third check, checks if a letter is in the selected word</param>
-    internal void Validation(char KeyChar, string selectedWord, out bool Check1, out bool Check2, out bool Check3)
+    internal static void Validation(char KeyChar, string selectedWord, out bool Check1, out bool Check2, out bool Check3)
     {
         Check1 = false;
         Check2 = false;
@@ -147,13 +142,5 @@ class Program
                 }
             }
         }
-    }
-    internal static void Main()
-    {
-        Console.WriteLine("Welcome to the game 'Hangman'");
-        Console.WriteLine("You write a letter, and if that letter is in the word, then you can guess more, until you reveal the word. \nIf you guess 8 letters wrong, you lose the game.");
-        Console.WriteLine("Choose a letter to guess, only english letters are allowed.\n");
-        var Instance = new Program();
-        Instance.GameLoop();
     }
 }
