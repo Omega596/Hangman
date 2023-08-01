@@ -3017,5 +3017,10 @@ public static class Resources
     public const int maximumFailedAttempts = 9;
     public static readonly char[] allChars = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'm', 'u', 'v', 'w', 'x', 'y', 'z', };
     public static List<char> _availableChars = new();
+    enum ResultSwitchStates
+    {
+        SUCCESSFUL = 1,
+        FAILED = 2
+    }
 }
 
