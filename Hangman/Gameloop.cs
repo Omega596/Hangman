@@ -75,27 +75,11 @@ class Gameloop
                 {
                     if (IsInWord)
                     {
-                        _availableChars.Remove(KeyChar);
-                        Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
-                        selectedWordUniqueOnly.Remove(KeyChar);
-                        if (selectedWordUniqueOnly.Count == 0)
-                        {
-                            Console.WriteLine("You Win!");
-                            break;
-                        }
-                        Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+                        UserInputResult(_availableChars, selectedWordUniqueOnly, failedAttempts, KeyChar, SUCCESSFUL);
                     }
                     else
                     {
-                        _availableChars.Remove(KeyChar);
-                        Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
-                        if (failedAttempts >= maximumFailedAttempts)
-                        {
-                            Console.WriteLine("Game Over");
-                            break;
-                        }
-                        failedAttempts++;
-                        Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+                        UserInputResult(_availableChars, selectedWordUniqueOnly, failedAttempts, KeyChar, FAILED);
                     }
                 }
                 else
@@ -140,6 +124,36 @@ class Gameloop
                 {
                     Check3 = true;
                 }
+            }
+        }
+    }
+    internal static void UserInputResult(char[] availableChars, List<char> selectedWordUniqueOnly, int failedAttempts, char KeyChar, int ResultSwitch)
+    {
+        switch (ResultSwitch)
+        {
+            case SUCCESSFUL:
+            {
+                availableChars.Remove(KeyChar);
+                Console.WriteLine($" ({string.Join(", ", availableChars)})\n");
+                selectedWordUniqueOnly.Remove(KeyChar);
+                if (selectedWordUniqueOnly.Count == 0)
+                {
+                    Console.WriteLine("You Win!");
+                    break;
+                }
+                Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+            }
+            case FAILED:
+            {
+                _availableChars.Remove(KeyChar);
+                Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
+                if (failedAttempts == maximumFailedAttempts)
+                {
+                    Console.WriteLine("Game Over");
+                    break;
+                }
+                failedAttempts++;
+                Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
             }
         }
     }

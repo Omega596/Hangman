@@ -3023,5 +3023,10 @@ public static class Resources
     'm', 'u', 'v', 'w', 'x', 
     'y', 'z', };
     public static List<char> _availableChars = new();
+    enum ResultSwitchStates
+    {
+        SUCCESSFUL = 1,
+        FAILED = 2
+    }
 }
 
