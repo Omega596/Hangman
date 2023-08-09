@@ -89,7 +89,7 @@ class Gameloop
                     {
                         _availableChars.Remove(KeyChar);
                         Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
-                        if (failedAttempts == maximumFailedAttempts)
+                        if (failedAttempts >= maximumFailedAttempts)
                         {
                             Console.WriteLine("Game Over");
                             break;
