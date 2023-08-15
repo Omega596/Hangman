@@ -5,7 +5,7 @@ class Init
     {
         Console.WriteLine("Select Locale / Выберите язык:\n English\n Русский");
         Locale = Console.ReadLine();
-        if (Locale != "English" && Locale != "Русский")
+        if (!Locale.Equals("English", StringComparison.OrdinalIgnoreCase) && !Locale.Equals("Русский", StringComparison.OrdinalIgnoreCase))
         {
             Console.WriteLine("Invaild Input! / Неправельный выбор!");
             Main();

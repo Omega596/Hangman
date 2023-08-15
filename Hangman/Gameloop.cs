@@ -86,7 +86,7 @@ class Gameloop
                     Console.Clear();
                     if (Locale == "Русский")
                     {
-                        Console.WriteLine($"\nВведенный вами символ неверен, доступны следующие символы: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                        Console.WriteLine($"\nВведенный вами символ недопустим, допустимыми являются следующие символы: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
                     }
                     else
                     {
@@ -100,11 +100,11 @@ class Gameloop
                 Console.Clear();
                 if (Locale == "Русский")
                 {
-                    Console.WriteLine($"\nВведенный вами символ неверен, доступны следующие символы: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                    Console.WriteLine($"\nВведенный вами символ недопустим, допустимыми являются следующие символы: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
                 }
                 else
                 {
-                    Console.WriteLine($"The Character you entered is incorrect, the avaliable characters are: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                    Console.WriteLine($"The Character you entered is invalid, the avaliable characters are: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
                 }
             }
 #endif
@@ -190,7 +190,6 @@ class Gameloop
             case ResultSwitchStates.FAILED:
             {
                 availableChars.Remove(KeyChar);
-                Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
                 if (failedAttempts >= maximumFailedAttempts)
                 {
                     TextReader originalInput = Console.In;
@@ -214,6 +213,12 @@ class Gameloop
                     Environment.Exit(0);
 
                 }
+                Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
+                if (Locale == "Русский")
+                {
+                    Console.WriteLine("Выбранный вами символ является неправильным!");
+                }
+                Console.WriteLine("The Character you have chosen is incorrect!");
                 Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
                 Console.WriteLine($"\n{string.Join("\0", DiscoveredChars)}");
                 if (Locale == "Русский")
