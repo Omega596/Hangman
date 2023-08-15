@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using static Resources;
 class Gameloop
 {
@@ -6,10 +7,23 @@ class Gameloop
     {
         _availableChars.AddRange(allChars);
         var rand = new Random();
-        int Randomindex = rand.Next(words.Length);
-        string selectedWord = words[Randomindex];
+        int randomIndex = rand.Next(words.Length);
+        string selectedWord = words[randomIndex];
         List<char> selectedWordUniqueOnly = new(selectedWord.Distinct().ToArray());
         Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+        char[] DiscoveredChars = new char[selectedWord.Length];
+
+        if (Locale == "Русский")
+        {
+            randomIndex = rand.Next(russianWords.Length);
+            selectedWord = russianWords[randomIndex];
+            allChars = allRussianChars;
+            _availableChars.Clear();
+            _availableChars.AddRange(allRussianChars);
+            DiscoveredChars = new char[selectedWord.Length];
+            selectedWordUniqueOnly = new(selectedWord.Distinct().ToArray());
+        }
+        Fill(DiscoveredChars, '_');
         for (int i = 0; i < allChars.Length; i++)
         {
 #if DEBUG
@@ -20,7 +34,7 @@ class Gameloop
             bool IsLetter;
             bool IsAvailable;
             bool IsInWord;
-            Validation(KeyChar, selectedWord, out IsLetter, out IsAvailable, out IsInWord);
+            Validation(KeyChar, selectedWord, out IsLetter, out IsAvailable, out IsInWord, DiscoveredChars);
 #if DEBUG
             if (IsLetter)
             {
@@ -30,29 +44,12 @@ class Gameloop
                     Console.WriteLine($"Debugging: IsAvaliable Check True, Target: {KeyChar}");
                     if (IsInWord)
                     {
-                        _availableChars.Remove(KeyChar);
-                        Console.WriteLine($"({string.Join(", ", _availableChars)})");
-                        Console.WriteLine($"maximunFailedAttempts == {maximumFailedAttempts}, failedAttempts == {failedAttempts}");
-                        selectedWordUniqueOnly.Remove(KeyChar);
-                        Console.WriteLine(string.Join("", selectedWordUniqueOnly));
-                        if (selectedWordUniqueOnly.Count == 0)
-                        {
-                            Console.WriteLine("You Win!");
-                            break;
-                        }
-                        Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+                        UserInputResult(_availableChars, selectedWordUniqueOnly, failedAttempts, KeyChar, ResultSwitchStates.SUCCESSFUL, DiscoveredChars);
                     }
                     else
                     {
-                        _availableChars.Remove(KeyChar);
                         failedAttempts++;
-                        if (failedAttempts >= maximumFailedAttempts)
-                        {
-                            Console.WriteLine("Game Over");
-                            break;
-                        }
-                        Console.WriteLine($"maximunFailedAttempts == {maximumFailedAttempts}, failedAttempts == {failedAttempts}");
-                        Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+                        UserInputResult(_availableChars, selectedWordUniqueOnly, failedAttempts, KeyChar, ResultSwitchStates.FAILED, DiscoveredChars);
                     }
                 }
                 else
@@ -75,24 +72,40 @@ class Gameloop
                 {
                     if (IsInWord)
                     {
-                        UserInputResult(_availableChars, selectedWordUniqueOnly, failedAttempts, KeyChar, SUCCESSFUL);
+                        UserInputResult(_availableChars, selectedWordUniqueOnly, failedAttempts, KeyChar, ResultSwitchStates.SUCCESSFUL, DiscoveredChars);
                     }
                     else
                     {
-                        UserInputResult(_availableChars, selectedWordUniqueOnly, failedAttempts, KeyChar, FAILED);
+                        failedAttempts++;
+                        UserInputResult(_availableChars, selectedWordUniqueOnly, failedAttempts, KeyChar, ResultSwitchStates.FAILED, DiscoveredChars);
                     }
                 }
                 else
                 {
                     i--;
-                    Console.WriteLine($"The Character you entered is incorrect, the avaliable characters are: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                    Console.Clear();
+                    if (Locale == "Русский")
+                    {
+                        Console.WriteLine($"\nВведенный вами символ неверен, доступны следующие символы: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"The Character you entered is incorrect, the avaliable characters are: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                    }
                 }
             }
             else
             {
                 i--;
                 Console.Clear();
-                Console.WriteLine($"The Character you entered is incorrect, the avaliable characters are: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                if (Locale == "Русский")
+                {
+                    Console.WriteLine($"\nВведенный вами символ неверен, доступны следующие символы: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                }
+                else
+                {
+                    Console.WriteLine($"The Character you entered is incorrect, the avaliable characters are: \n{string.Join(", ", _availableChars)}\n\n{hangman_ASCII_Sprites[failedAttempts]}");
+                }
             }
 #endif
         }
@@ -105,12 +118,16 @@ class Gameloop
     /// <param name="Check1">The output of the first check, checks if a letter is a english letter</param>
     /// <param name="Check2">The output of the second check, checks if a letter is available</param>
     /// <param name="Check3">The output of the third check, checks if a letter is in the selected word</param>
-    internal static void Validation(char KeyChar, string selectedWord, out bool Check1, out bool Check2, out bool Check3)
+    internal static void Validation(char KeyChar, string selectedWord, out bool Check1, out bool Check2, out bool Check3, char[] DiscoveredChars)
     {
         Check1 = false;
         Check2 = false;
         Check3 = false;
         string pattern = @"^[a-zA-Z]+$";
+        if (Locale == "Русский")
+        {
+            pattern = @"^[а-яА-Я]+$";
+        }
         bool isLetter = Regex.IsMatch(KeyChar.ToString(), pattern);
         bool isAvailable = _availableChars.Contains(KeyChar);
         bool isInWord = selectedWord.Contains(KeyChar);
@@ -123,38 +140,134 @@ class Gameloop
                 if (isInWord)
                 {
                     Check3 = true;
+                    DiscoveredCharsDisplay(selectedWord, KeyChar, DiscoveredChars);
                 }
             }
         }
     }
-    internal static void UserInputResult(char[] availableChars, List<char> selectedWordUniqueOnly, int failedAttempts, char KeyChar, int ResultSwitch)
+    internal static void UserInputResult(List<char> availableChars, List<char> selectedWordUniqueOnly, int failedAttempts, char KeyChar, ResultSwitchStates ResultSwitch, char[] DiscoveredChars)
     {
         switch (ResultSwitch)
         {
-            case SUCCESSFUL:
+            case ResultSwitchStates.SUCCESSFUL:
             {
                 availableChars.Remove(KeyChar);
-                Console.WriteLine($" ({string.Join(", ", availableChars)})\n");
                 selectedWordUniqueOnly.Remove(KeyChar);
                 if (selectedWordUniqueOnly.Count == 0)
                 {
+                    TextReader originalInput = Console.In;
+                    TextWriter originalOutput = Console.Out;
+                    if (Locale == "Русский")
+                    {
+
+                        Console.WriteLine("Ты выиграл!");
+                        Console.WriteLine("Игра закроется через пять секунд");
+                        Console.SetIn(TextReader.Null);
+                        Console.SetOut(TextWriter.Null);
+                        Console.ReadKey();
+                        Thread.Sleep(5000);
+                        Environment.Exit(0);
+                    }
                     Console.WriteLine("You Win!");
-                    break;
+                    Console.WriteLine("The game will close in five seconds");
+                    Console.SetIn(TextReader.Null);
+                    Console.SetOut(TextWriter.Null);
+                    Console.ReadKey();
+                    Thread.Sleep(5000);
+                    Environment.Exit(0);
                 }
+                Console.WriteLine($" ({string.Join(", ", availableChars)})\n");
                 Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
-            }
-            case FAILED:
-            {
-                _availableChars.Remove(KeyChar);
-                Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
-                if (failedAttempts == maximumFailedAttempts)
+                Console.WriteLine($"\n{string.Join("\0", DiscoveredChars)}");
+                if (Locale == "Русский")
                 {
-                    Console.WriteLine("Game Over");
+                    Console.WriteLine($"\nКоличество неудачных попыток: {failedAttempts} из {maximumFailedAttempts}.");
                     break;
                 }
-                failedAttempts++;
-                Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+                Console.WriteLine($"\nNumber of failed attempts: {failedAttempts} out of {maximumFailedAttempts}.");
+                break;
             }
+            case ResultSwitchStates.FAILED:
+            {
+                availableChars.Remove(KeyChar);
+                Console.WriteLine($" ({string.Join(", ", _availableChars)})\n");
+                if (failedAttempts >= maximumFailedAttempts)
+                {
+                    TextReader originalInput = Console.In;
+                    TextWriter originalOutput = Console.Out;
+                    if (Locale == "Русский")
+                    {
+                        Console.WriteLine("Игра окончена");
+                        Console.WriteLine("Игра закроется через пять секунд");
+                        Console.SetIn(TextReader.Null);
+                        Console.SetOut(TextWriter.Null);
+                        Console.ReadKey();
+                        Thread.Sleep(5000);
+                        Environment.Exit(0);
+                    }    
+                    Console.WriteLine("Game Over");
+                    Console.WriteLine("The game will close in five seconds");
+                    Console.SetIn(TextReader.Null);
+                    Console.SetOut(TextWriter.Null);
+                    Console.ReadKey();
+                    Thread.Sleep(5000);
+                    Environment.Exit(0);
+
+                }
+                Console.WriteLine(hangman_ASCII_Sprites[failedAttempts].ToString());
+                Console.WriteLine($"\n{string.Join("\0", DiscoveredChars)}");
+                if (Locale == "Русский")
+                {
+                    Console.WriteLine($"\nКоличество неудачных попыток: {failedAttempts} из {maximumFailedAttempts}.");
+                    break;
+                }
+                Console.WriteLine($"\nNumber of failed attempts: {failedAttempts} out of {maximumFailedAttempts}.");
+                break;
+            }
+            default:
+                if (Locale == "Русский")
+                {
+                    Console.WriteLine($"Значение недействительно ({ResultSwitch})");
+                    break;
+                }
+                Console.WriteLine($"The Value is invalid ({ResultSwitch})");
+                break;
+        }
+    }
+    internal static char[] Fill(char[] array, char fill)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            array[i] = fill;
+        }
+        return array;
+    }
+    public static List<int> FindOccurrences(string input, char character)
+    {
+        List<int> occurrences = new List<int>();
+        int index = -1;
+
+        do
+        {
+            index = input.IndexOf(character, index + 1);
+            if (index != -1)
+            {
+                occurrences.Add(index);
+            }
+        } while (index != -1);
+
+        return occurrences;
+    }
+    public static void DiscoveredCharsDisplay(string selectedWord, char KeyChar, char[] DiscoveredChars)
+    {
+        List<int> indexList = FindOccurrences(selectedWord, KeyChar);
+        for (int i = 0; i < DiscoveredChars.Length; i++)
+        {
+            if (indexList.Count == i)
+            {
+                break;
+            }
+            DiscoveredChars[indexList[i]] = selectedWord[indexList[i]];
         }
     }
 }
